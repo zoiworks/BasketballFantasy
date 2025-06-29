@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="https://www.thymeleaf.org/thymeleaf-extras-springsecurity6">
+
+
+<head>
+    <title>Welcome</title>
+</head>
+
+<body>
+    <h1>Καλωσήρθες!</h1>
+    <p th:text="'Συνδεδεμένος ως: ' + ${email}"></p>
+
+    <form th:action="@{/logout}" method="post">
+        <button type="submit">Αποσύνδεση</button>
+    </form>
+    <!-- Φαίνεται μόνο αν έχει ρόλο ADMIN -->
+    <div sec:authorize="hasAnyRole('ROLE_ADMIN','ROLE_MANAGER')">
+        <a href="/admin">Back Office</a>
+    </div>
+    
+</body>
+
+</html>
