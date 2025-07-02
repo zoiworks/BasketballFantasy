@@ -34,7 +34,7 @@ public class Competition {
     // Σύνδεση με τον manager-user
     private User manager;
 
-    @Column(name = "SEASON", length = 9)
+    @Column(name = "SEASON", length = 100)
     // Περίοδος/σεζόν του πρωταθλήματος (π.χ. 2024-2025)
     private String season;
 
@@ -42,7 +42,7 @@ public class Competition {
     // Όνομα του πρωταθλήματος
     private String name;
 
-    @Column(name = "CATEGORY", length = 50)
+    @Column(name = "CATEGORY", length = 100)
     // Κατηγορία πρωταθλήματος (π.χ. Ανδρών, Γυναικών, U18)
     private String category;
 

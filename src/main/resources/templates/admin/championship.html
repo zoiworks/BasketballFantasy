@@ -48,6 +48,7 @@
 </head>
 
 <body>
+
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top ">
         <div class="container-fluid">
             <a class="navbar-brand d-flex align-items-center" href="#">
@@ -94,92 +95,9 @@
         </div>
     </nav>
 
-    <div class="container text-center mt-2">
-        <h6>Admin panel</h6>
-    </div>
 
+    <h1>μεσα στο πρωτάθλημα</h1>
 
-    <div class="container mt-3" sec:authorize="hasRole('ROLE_ADMIN')">
-        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createChampionshipModal">
-            + Δημιουργία Πρωταθλήματος
-        </button>
-    </div>
-
-
-    <div class="container mt-4" th:if="${championships != null and !championships.isEmpty()}">
-        <div class="row row-cols-1 row-cols-sm-2 row-cols-md-3 g-4">
-            <div class="col" th:each="championship : ${championships}">
-                <div class="card h-100 text-center">
-                    <img th:if="${championship.photoUrl}" th:src="${championship.photoUrl}"
-                        class="card-img-top mx-auto mt-3 rounded-circle"
-                        style="width:100px; height:100px; object-fit:cover;" alt="Φωτογραφία" />
-
-                    <div class="card-body d-flex flex-column">
-                        <h5 class="card-title" th:text="${championship.name}">Όνομα</h5>
-                        <p class="card-text" th:if="${championship.manager != null}"
-                            th:text="'Manager: ' + ${championship.manager.email}">
-                        </p>
-
-                        <!-- Είσοδος στη διαχείριση του πρωταθλήματος -->
-                        <div class="mt-2">
-                            <a th:href="@{'/admin/championship/' + ${championship.id}}"
-                                sec:authorize="hasAnyRole('ROLE_ADMIN', 'ROLE_MANAGER')"
-                                class="btn btn-sm btn-outline-success w-100">➡️ Είσοδος</a>
-                        </div>
-
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
 
 
 </body>
-
-<!-- Modal Δημιουργίας Διοργάνωσης -->
-<div class="modal fade" id="createChampionshipModal" tabindex="-1" aria-labelledby="createChampionshipModalLabel"
-    aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <form th:action="@{/admin/championships}" method="post" enctype="multipart/form-data">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="createChampionshipModalLabel">Νέα Διοργάνωση</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Κλείσιμο"></button>
-                </div>
-                <div class="modal-body">
-
-                    <!-- Όνομα Διοργάνωσης -->
-                    <div class="mb-3">
-                        <label for="name" class="form-label">Όνομα Διοργάνωσης</label>
-                        <input type="text" class="form-control" id="name" name="name" required>
-                    </div>
-
-                    <!-- Φωτογραφία -->
-                    <div class="mb-3">
-                        <label for="photo" class="form-label">Φωτογραφία (προαιρετική)</label>
-                        <input type="file" class="form-control" id="photo" name="photo" accept="image/png, image/jpeg">
-                    </div>
-
-                    <!-- Επιλογή Manager -->
-                    <div class="mb-3">
-                        <label for="managerId" class="form-label">Διαχειριστής (Manager)</label>
-                        <select class="form-select" id="managerId" name="managerId">
-                            <option value="">-- Επιλογή Manager --</option>
-                            <option th:each="manager : ${managers}" th:value="${manager.id}" th:text="${manager.email}">
-                            </option>
-
-                        </select>
-                    </div>
-
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Άκυρο</button>
-                    <button type="submit" class="btn btn-primary">Αποθήκευση</button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
-
-
-</html>

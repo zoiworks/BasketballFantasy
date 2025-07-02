@@ -32,4 +32,6 @@ public class CompetitionService {
     public void deleteChampionship(Integer id) {
         competitionRepository.deleteById(id);
     }
+
+    
 }

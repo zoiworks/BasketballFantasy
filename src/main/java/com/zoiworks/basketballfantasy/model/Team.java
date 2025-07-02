@@ -29,7 +29,7 @@ public class Team {
     // Μοναδικό αναγνωριστικό ομάδας (Primary Key)
     private Integer id;
 
-    @Column(name = "NAME", nullable = false, length = 100, unique = true)
+    @Column(name = "NAME", nullable = false, length = 100 , unique = true)
     // Όνομα ομάδας (μοναδικό)
     private String title;
 

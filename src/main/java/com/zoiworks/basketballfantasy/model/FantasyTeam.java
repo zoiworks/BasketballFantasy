@@ -50,7 +50,7 @@ public class FantasyTeam {
     // Ο φανταστικός προπονητής της ομάδας
     private FantasyCoach fantasyCoach;
 
-    @Column(name = "TITLE", nullable = true, length = 100)
+    @Column(name = "TITLE", nullable = true, length= 100)
     // Όνομα της ομάδας
     private String title;
 

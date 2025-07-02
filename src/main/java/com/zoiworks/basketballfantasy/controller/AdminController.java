@@ -39,10 +39,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.zoiworks.basketballfantasy.model.Competition;
-import com.zoiworks.basketballfantasy.model.Team;
+import com.zoiworks.basketballfantasy.model.Championship;
 import com.zoiworks.basketballfantasy.model.User;
-import com.zoiworks.basketballfantasy.repository.CompetitionRepository;
+import com.zoiworks.basketballfantasy.repository.ChampionshipRepository;
 import com.zoiworks.basketballfantasy.repository.TeamRepository;
 import com.zoiworks.basketballfantasy.repository.UserRepository;
 import com.zoiworks.basketballfantasy.service.UserService;
@@ -54,7 +53,7 @@ import net.coobird.thumbnailator.Thumbnails;
 public class AdminController {
 
     @Autowired
-    private CompetitionRepository CompetitionRepository;
+    private ChampionshipRepository championshipRepository;
 
     @Autowired
     private TeamRepository teamRepository;
@@ -65,10 +64,25 @@ public class AdminController {
     @Autowired
     private UserRepository userRepository;
 
-    // Αν κάποιος πάει στο /admin, κάνε ανακατεύθυνση στη λίστα πρωταθλημάτων
-    @GetMapping
-    public String redirectToChampionships() {
-        return "redirect:/admin/championships";
+    @GetMapping("/index")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MANAGER')")
+    public String showAdminPanel(Model model, Authentication auth) {
+        User user = userService.findByEmail(auth.getName()).orElseThrow();
+
+        List<Championship> championships;
+        if (user.getRoles().contains("ADMIN")) {
+            championships = championshipRepository.findAll(); // 🟢 Χρησιμοποιούμε Championship
+        } else {
+            championships = championshipRepository.findByManagerId(user.getId());
+        }
+
+        model.addAttribute("championships", championships);
+
+        if (user.getRoles().contains("ADMIN")) {
+            model.addAttribute("managers", userService.findManagers());
+        }
+
+        return "admin/index";
     }
 
     @InitBinder
@@ -80,13 +94,12 @@ public class AdminController {
                 new CustomNumberEditor(Integer.class, true));
     }
 
-
     // Σελίδα λίστας πρωταθλημάτων
     @PostMapping("/championships")
     @PreAuthorize("hasRole('ADMIN')") // ✅ ΤΩΡΑ μόνο ο admin μπορεί να δημιουργήσει πρωτάθλημα
     // 1) Δημιουργία νέου πρωταθλήματος
     public String createChampionship(
-            @ModelAttribute Competition championship,
+            @ModelAttribute Championship championship,
             @RequestParam(value = "managerId", required = false) Integer managerId,
             @RequestParam("photo") MultipartFile photoFile,
             Authentication auth) {
@@ -141,82 +154,8 @@ public class AdminController {
         }
 
         // 3) Τελική αποθήκευση
-        CompetitionRepository.save(championship);
-        return "redirect:/admin/championships";
-    }
-
-    // Διαγραφή πρωταθλήματος
-    @PostMapping("/championships/delete/{id}")
-    public String deleteChampionship(@PathVariable("id") Integer id, Authentication auth) {
-        User user = userService.findByEmail(auth.getName()).orElseThrow();
-        Competition championship = CompetitionRepository.findById(id).orElse(null);
-        // Αν δεν βρεθεί → επιστροφή
-        if (championship == null) {
-            return "redirect:/admin/championships";
-        }
-
-        // Μόνο ο admin ή ο assigned manager μπορεί να διαγράψει
-        if (user.getRoles().contains("ADMIN") ||
-                (user.getRoles().contains("MANAGER") && championship.getManager() != null
-                        && championship.getManager().getId() == user.getId())) {
-            CompetitionRepository.deleteById(id);
-        }
-
-        return "redirect:/admin/championships";
-    }
-
-    // Επεξεργασία υπάρχοντος πρωταθλήματος
-    @PostMapping("/championships/edit")
-    public String updateChampionship(@ModelAttribute Competition updatedChampionship, Authentication auth) {
-        User user = userService.findByEmail(auth.getName()).orElseThrow();
-        Competition existing = CompetitionRepository.findById(updatedChampionship.getId()).orElse(null);
-        // Αν δεν βρεθεί → επιστροφή
-        if (existing == null) {
-            return "redirect:/admin/championships";
-        }
-        // 🔐 Αν ο χρήστης είναι MANAGER αλλά ΔΕΝ είναι ο assigned manager του
-        // πρωταθλήματος
-        if (user.getRoles().contains("MANAGER") &&
-                (existing.getManager() == null || existing.getManager().getId() != user.getId())) {
-            return "redirect:/admin/championships?error=unauthorized";
-        }
-
-        // 🧠 Αν έχει επιλεγεί manager αλλά είναι κενό, καθάρισε το
-        if (updatedChampionship.getManager() != null && updatedChampionship.getManager().getId() == 0) {
-            updatedChampionship.setManager(null);
-        }
-        // Ενημέρωση πεδίων
-        existing.setName(updatedChampionship.getName());
-        existing.setSeason(updatedChampionship.getSeason());
-        existing.setCategory(updatedChampionship.getCategory());
-        existing.setNumberOfTeams(updatedChampionship.getNumberOfTeams());
-        existing.setStartDate(updatedChampionship.getStartDate());
-        existing.setEndDate(updatedChampionship.getEndDate());
-        existing.setStatus(updatedChampionship.getStatus());
-
-        // ⚠️ Μόνο ο admin μπορεί να αλλάξει τον assigned manager
-        if (user.getRoles().contains("ADMIN")) {
-            existing.setManager(updatedChampionship.getManager());
-        }
-
-        CompetitionRepository.save(existing);
-        return "redirect:/admin/championships";
-    }
-
-    // Σελίδα διαχείρισης συγκεκριμένου πρωταθλήματος
-    @GetMapping("/championships/{id}")
-    public String manageChampionship(@PathVariable("id") Integer id, Model model) {
-        Competition championship = CompetitionRepository.findById(id).orElse(null);
-        if (championship == null) {
-            return "redirect:/admin";
-        }
-        // Φόρτωσε ομάδες του πρωταθλήματος
-        List<Team> teams = teamRepository.findByCompetitionId(id);
-
-        model.addAttribute("championship", championship);
-        model.addAttribute("teams", teams);
-
-        return "admin/championship-details";
+        championshipRepository.save(championship);
+        return "redirect:/admin/index";
     }
 
     @GetMapping("/users")

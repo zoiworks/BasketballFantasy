@@ -30,7 +30,7 @@ public class FantasyLeague {
     // Μοναδικό αναγνωριστικό του fantasy πρωταθλήματος
     private Integer id;
 
-    @Column(nullable = false, length = 255)
+    @Column(nullable = false, length = 100)
     // Όνομα του fantasy πρωταθλήματος (π.χ. "Λίγκα Γιώργου")
     private String name;
 
@@ -48,7 +48,7 @@ public class FantasyLeague {
     // Ημερομηνία δημιουργίας
     private LocalDateTime createdAt = LocalDateTime.now();
 
-    @Column(nullable = false)
+    @Column
     // Κατάσταση: true = ενεργό, false = κλειστό
     private Boolean status = true;
 

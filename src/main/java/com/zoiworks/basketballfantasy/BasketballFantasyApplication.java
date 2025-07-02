@@ -15,7 +15,7 @@ public class BasketballFantasyApplication {
 				.ignoreIfMissing()
 				.load();
 
-		System.out.println("🚀 DB_URL from .env: " + dotenv.get("DB_URL"));
+		System.out.println("DB_URL from .env: " + dotenv.get("DB_URL"));
 		// Βάλε τις μεταβλητές στο System properties
 		System.setProperty("DB_URL", dotenv.get("DB_URL"));
 		System.setProperty("DB_USER", dotenv.get("DB_USER"));

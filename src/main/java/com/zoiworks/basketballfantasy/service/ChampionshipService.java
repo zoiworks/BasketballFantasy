@@ -15,13 +15,12 @@ public class ChampionshipService {
     @Autowired
     private ChampionshipRepository championshipRepository;
 
-
     public List<Championship> getAllChampionships() {
         return championshipRepository.findAll();
     }
 
-    public Optional<Championship> getChampionshipById(Integer id) {
-        return championshipRepository.findById(id);
+    public Optional<Championship> findById(Integer id) {
+        return championshipRepository.findByIdWithCompetitions(id);
     }
 
     public Championship saveChampionship(Championship championship) {
@@ -34,6 +33,10 @@ public class ChampionshipService {
 
     public Championship save(Championship championship) {
         return championshipRepository.save(championship);
+    }
+
+    public List<Championship> findByManagerId(Integer managerId) {
+        return championshipRepository.findByManagerId(managerId);
     }
 
 }

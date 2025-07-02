@@ -1,6 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org"
-      xmlns:sec="https://www.thymeleaf.org/thymeleaf-extras-springsecurity6">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 
 
 <head>
@@ -14,11 +13,15 @@
     <form th:action="@{/logout}" method="post">
         <button type="submit">Αποσύνδεση</button>
     </form>
-    <!-- Φαίνεται μόνο αν έχει ρόλο ADMIN -->
-    <div sec:authorize="hasAnyRole('ROLE_ADMIN','ROLE_MANAGER')">
-        <a href="/admin">Back Office</a>
+    <!-- Φαίνεται μόνο αν έχει ρόλο ADMIN ή MANAGER -->
+
+    <div sec:authorize="hasAnyRole('ROLE_ADMIN', 'ROLE_MANAGER')">
+        <a href="/admin/index" class="btn btn-primary">Back Office</a>
     </div>
-    
+
+
+
+
 </body>
 
 </html>
